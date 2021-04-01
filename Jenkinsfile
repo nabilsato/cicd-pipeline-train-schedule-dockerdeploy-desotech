@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE_NAME = 'brainplot/train-schedule'
+        DOCKER_IMAGE_NAME = '<YOUR_USERNAME>/train-schedule'
         DOCKER_IMAGE_TAG = 'latest'
         DOCKER_REGISTRY = 'https://registry.hub.docker.com'
         DOCKER_NODE_IP = '10.10.142.10'
