@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    environment {
+        DOCKER_IMAGE_NAME = '<YOUR_USERNAME>/train-schedule'
+        DOCKER_IMAGE_TAG = 'latest'
+        DOCKER_REGISTRY = 'https://registry.hub.docker.com'
+        DOCKER_NODE_IP = '10.10.142.10'
+        TARGET_PORT = 8080
+        EXTERNAL_PORT = 9000
+    }
     stages {
         stage('Build') {
             steps {
@@ -14,9 +22,9 @@ pipeline {
             }
             steps {
                 script {
-                    app = docker.build("fgrimaldi/train-schedule")
+                    app = docker.build("${DOCKER_IMAGE_NAME}")
                     app.inside {
-                        sh 'echo $(curl localhost:8080)'
+                        sh 'echo $(curl localhost:${TARGET_PORT})'
                     }
                 }
             }
@@ -27,9 +35,9 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
+                    docker.withRegistry("${DOCKER_REGISTRY}", 'docker_hub_login') {
                         app.push("${env.BUILD_NUMBER}")
-                        app.push("latest")
+                        app.push("${DOCKER_IMAGE_TAG}")
                     }
                 }
             }
@@ -43,14 +51,14 @@ pipeline {
                 milestone(1)
                 withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker pull fgrimaldi/train-schedule:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_NODE_IP \"docker pull ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}\""
                         try {
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker stop train-schedule\""
-                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker rm train-schedule\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_NODE_IP \"docker stop train-schedule\""
+                            sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_NODE_IP \"docker rm train-schedule\""
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name train-schedule -p 8080:8080 -d fgrimaldi/train-schedule:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_NODE_IP \"docker run --restart always --name train-schedule -p $EXTERNAL_PORT:$TARGET_PORT -d ${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}\""
                     }
                 }
             }
