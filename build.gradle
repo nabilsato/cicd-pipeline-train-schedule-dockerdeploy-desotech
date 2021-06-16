@@ -1,12 +1,12 @@
 plugins {
   //inlude the nodeJS plugin to execute nodejs and npm tasks
-  id "com.moowork.node" version "1.2.0"
+	id "com.github.node-gradle.node" version "3.0.1"
 }
 
 node {
 	download = true
-	version = "9.11.1"
-	npmVersion = "5.6.0"
+	version = "14.16.0"
+	// npmVersion = "7.6.3"
 }
 
 //declare a build task
@@ -30,6 +30,10 @@ task zip(type: Zip) {
 //declare task dependencies
 build.dependsOn zip
 zip.dependsOn npm_build
+npm_cache_clean {
+	args = ['--force']
+}
+npm_build.dependsOn npm_clean_cache
 npm_build.dependsOn npm_test
 npm_test.dependsOn npmInstall
 npm_build.dependsOn npmInstall
