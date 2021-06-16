@@ -1,10 +1,10 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE_NAME = 'fgrimaldi/train-schedule'
+        DOCKER_IMAGE_NAME = 'nabil/train-schedule'
         DOCKER_IMAGE_TAG = 'latest'
-        DOCKER_REGISTRY = 'https://registry.hub.docker.com'
-        DOCKER_NODE_IP = '10.10.132.10'
+        DOCKER_REGISTRY = 'https://r.deso.tech'
+        DOCKER_NODE_IP = '10.10.139.22'
         TARGET_PORT = 8080
         EXTERNAL_PORT = 9000
     }
