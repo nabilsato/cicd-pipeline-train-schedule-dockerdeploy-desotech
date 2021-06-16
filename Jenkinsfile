@@ -3,7 +3,7 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = 'nabil/desotech-schedule'
         DOCKER_IMAGE_TAG = 'latest'
-        DOCKER_REGISTRY = 'https://r.deso.tech'
+        DOCKER_REGISTRY = 'r.deso.tech'
         DOCKER_NODE_IP = '10.10.139.22'
         TARGET_PORT = 8080
         EXTERNAL_PORT = 9000
