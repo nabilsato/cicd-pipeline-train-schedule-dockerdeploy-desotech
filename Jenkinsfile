@@ -35,7 +35,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'docker_hub_login') {
+                    docker.withRegistry("https://${DOCKER_REGISTRY}", 'harbor_login') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("${DOCKER_IMAGE_TAG}")
                     }
@@ -49,7 +49,7 @@ pipeline {
             steps {
                 input 'Deploy to Production?'
                 milestone(1)
-                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'server_docker', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$DOCKER_NODE_IP \"docker pull ${DOCKER_REGISTRY}/${DOCKER_IMAGE_NAME}:${env.BUILD_NUMBER}\""
                         try {
